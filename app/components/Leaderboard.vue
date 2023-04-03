@@ -69,49 +69,53 @@
     }[]
   >([]);
 
-  const result = await supabase
-    .from('member')
-    .select()
-    .eq('server_id', props.id);
-
-  if (result.error) {
-    throw createError({
-      statusCode: result.status,
-      statusMessage: result.statusText,
-      fatal: true,
-    });
-  }
-
-  if (result.data.length < 1) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: `Looks like this leaderboard was not found! Or maybe no one has talked in that server yet :(`,
-      fatal: true,
-    });
-  }
-
   const guild = await useFetch(`/api/discordGuild?id=${props.id}`);
   const gData = toRaw(guild.data.value);
 
-  result.data.forEach(async (v) => {
-    const result = await useFetch(`/api/discordUser?user=${v.member_id}`);
+  async function fetchData() {
+    const result = await supabase
+      .from('member')
+      .select()
+      .eq('server_id', props.id);
 
-    const data = toRaw(result.data.value);
-
-    arr.value.push({
-      avatarURL: `https://cdn.discordapp.com/avatars/${v.member_id}/${data.avatar}.webp`,
-      username: data.username,
-      messages: v.message,
-      xp: v.xp,
-      level: v.level,
-    });
-  });
-
-  arr.value.sort((a, b) => {
-    if (a.level == b.level) {
-      return b.xp - a.xp;
+    if (result.error) {
+      throw createError({
+        statusCode: result.status,
+        statusMessage: result.statusText,
+        fatal: true,
+      });
     }
 
-    return b.level - a.level;
-  });
+    if (result.data.length < 1) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: `Looks like this leaderboard was not found! Or maybe no one has talked in that server yet :(`,
+        fatal: true,
+      });
+    }
+
+    const data = await Promise.all(
+      result.data.map(async (v) => {
+        const user = await useFetch(`/api/discordUser?user=${v.member_id}`);
+
+        return {
+          avatarURL: `https://cdn.discordapp.com/avatars/${v.member_id}/${user.data.value.avatar}.webp`,
+          username: user.data.value.username,
+          messages: v.message,
+          xp: v.xp,
+          level: v.level,
+        };
+      })
+    );
+
+    arr.value = data;
+
+    arr.value.sort((a, b) => {
+      if (a.level === b.level) return b.xp - a.xp;
+
+      return b.level - a.level;
+    });
+  }
+
+  fetchData();
 </script>
