@@ -18,7 +18,9 @@ export class Pat {
         new ButtonBuilder()
           .setLabel(`${interaction.guild.name}'s Leaderboard`)
           .setStyle(ButtonStyle.Link)
-          .setURL(`http://localhost:3000/leaderboard/${interaction.guild.id}`)
+          .setURL(
+            `https://space-bear.vercel.app//leaderboard/${interaction.guild.id}`
+          )
       );
 
     interaction.reply({ content: 'Here you go!', components: [row] });
