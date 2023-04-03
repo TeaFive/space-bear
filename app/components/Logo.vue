@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <!-- <div>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 475.32 476.1">
       <defs></defs>
       <title>Asset 1</title>
@@ -14,7 +14,8 @@
         </g>
       </g>
     </svg>
-  </div>
+  </div> -->
+  <img class="max-w-[2rem]" src="/sbWave.png" alt="" />
 </template>
 
 <style scoped>
