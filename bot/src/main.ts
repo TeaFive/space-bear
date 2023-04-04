@@ -1,7 +1,7 @@
 import { dirname, importx } from '@discordx/importer';
 import { YTDLPlayerPlugin } from '@discordx/plugin-ytdl-player';
 import { createClient } from '@supabase/supabase-js';
-import type { Interaction, Message } from 'discord.js';
+import { ActivityType, Interaction, Message } from 'discord.js';
 import { IntentsBitField } from 'discord.js';
 import { Client, MetadataStorage } from 'discordx';
 import { config } from 'dotenv';
@@ -43,6 +43,7 @@ export const bot = new Client({
 bot.once('ready', async () => {
   await bot.guilds.fetch(); // Make sure all guilds are cached
   await bot.initApplicationCommands(); // Synchronize applications commands with Discord
+  bot.user?.setActivity('Space Invaders', { type: ActivityType.Playing });
 
   console.log('Bot started');
 });
