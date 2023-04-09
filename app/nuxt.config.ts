@@ -7,6 +7,11 @@ if (!process.env.SUPABASE_ANON_KEY)
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: ['@nuxt/devtools', '@nuxtjs/tailwindcss', '@nuxtjs/google-fonts'],
+  app: {
+    head: {
+      link: [{ rel: 'icon', type: 'image/png', href: 'sbWave.png' }],
+    },
+  },
   googleFonts: {
     families: {
       Poppins: [400, 500, 700],
