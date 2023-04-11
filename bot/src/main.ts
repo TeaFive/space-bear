@@ -99,7 +99,7 @@ export const bot = new Client({
     IntentsBitField.Flags.MessageContent,
   ],
   plugins: [ytdlPlayerPlugin],
-  silent: true, // Debug logs are disabled in silent mode
+  silent: false, // Debug logs are disabled in silent mode
   // guards: [Log], // Default guard on each command
 });
 
