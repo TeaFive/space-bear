@@ -104,7 +104,7 @@ export class Pat {
         interaction,
         WarningMessage(
           `You've already pat Space Bear today.  You can pat Space Bear again at <t:${Math.floor(
-            (interaction.createdTimestamp + 24 * 60 * 60 * 1000) / 1000
+            supaMember.last_pat_timestamp / 1000
           )}:F>`
         )
       );
