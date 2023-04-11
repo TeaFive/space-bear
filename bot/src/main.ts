@@ -100,7 +100,7 @@ export const bot = new Client({
   ],
   plugins: [ytdlPlayerPlugin],
   silent: false, // Debug logs are disabled in silent mode
-  // guards: [Log], // Default guard on each command
+  guards: [Log], // Default guard on each command
 });
 
 bot.once('ready', async () => {
