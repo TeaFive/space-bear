@@ -3,7 +3,7 @@
     <img
       v-if="gData.icon"
       class="rounded-3xl border-4 border-white max-w-[12rem]"
-      src="https://cdn.discordapp.com/icons/{{ gData.id }}/{{ gdata.icon }}.webp?size=512"
+      :src="`https://cdn.discordapp.com/icons/${gData.id}/${gData.icon}.webp?size=512`"
       alt="" />
     <div
       v-else
