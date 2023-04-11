@@ -30,9 +30,12 @@ const Level = async (message: Message): Promise<void> => {
   if (!memberData) return;
   if (
     messageCreatedTimestamp <=
-    memberData.last_message_timestamp + 5 * 60 * 1000
-  )
+    memberData.last_message_timestamp + 2 * 60 * 1000
+  ) {
+    memberData.message++;
+    setMember(message.guild.id, message.author.id, memberData);
     return;
+  }
 
   const server = await getServer(message.guild.id);
 
