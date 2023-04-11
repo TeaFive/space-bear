@@ -1,8 +1,10 @@
+import { ErrorMessage } from '../components/messages.js';
 import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  CommandInteraction,
+  ChatInputCommandInteraction,
+  InteractionResponse,
   MessageActionRowComponentBuilder,
 } from 'discord.js';
 import { Discord, Slash } from 'discordx';
@@ -10,8 +12,14 @@ import { Discord, Slash } from 'discordx';
 @Discord()
 export class Pat {
   @Slash({ name: 'leaderboard', description: 'Get the servers leaderboard' })
-  async send(interaction: CommandInteraction): Promise<void> {
-    if (!interaction.guild) return;
+  async send(
+    interaction: ChatInputCommandInteraction
+  ): Promise<InteractionResponse<boolean>> {
+    if (!interaction.guild)
+      return interaction.reply({
+        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        ephemeral: true,
+      });
 
     const row =
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
@@ -19,10 +27,14 @@ export class Pat {
           .setLabel(`${interaction.guild.name}'s Leaderboard`)
           .setStyle(ButtonStyle.Link)
           .setURL(
-            `https://space-bear.vercel.app//leaderboard/${interaction.guild.id}`
+            `https://space-bear.vercel.app/leaderboard/${interaction.guild.id}`
           )
       );
 
-    interaction.reply({ content: 'Here you go!', components: [row] });
+    return interaction.reply({
+      content: 'Here you go!',
+      components: [row],
+      ephemeral: true,
+    });
   }
 }

@@ -1,55 +1,31 @@
-import { Pagination, PaginationType } from '@discordx/pagination';
-import { CommandInteraction, EmbedBuilder } from 'discord.js';
-import { fetchMember, fetchServer } from '../lib/fetchSupa.js';
-import { Discord, Slash } from 'discordx';
+import {
+  Pagination,
+  PaginationResolver,
+  PaginationType,
+  Resolver,
+} from '@discordx/pagination';
+import {
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  InteractionResponse,
+} from 'discord.js';
 import { supabase } from '../main.js';
+import {
+  getMember,
+  getServer,
+  setMember,
+  setServer,
+} from '../lib/cacheHelpers.js';
+import { Discord, Slash } from 'discordx';
+import { ErrorMessage, WarningMessage } from '../components/messages.js';
 
 @Discord()
 export class Pat {
-  @Slash({ name: 'pat', description: 'Pat Space Bear!' })
-  async send(interaction: CommandInteraction): Promise<void> {
-    if (!interaction.guild) return;
-    interaction.deferReply({ ephemeral: true });
-
-    const supaMember = await fetchMember(interaction);
-    const supaServer = await fetchServer(interaction.guild.id);
-
-    if (!supaMember) return;
-    if (!supaServer) return;
-
-    supaMember.pat++;
-    supaServer.pat++;
-
-    const memberUpdate = await supabase
-      .from('member')
-      .update(supaMember)
-      .eq('id', supaMember.id);
-    const serverUpdate = await supabase
-      .from('server')
-      .update(supaServer)
-      .eq('id', supaServer.id);
-
-    if (memberUpdate.error) {
-      console.error('pat.ts memberUpdate.error:\n', memberUpdate.error);
-      return;
-    }
-
-    if (serverUpdate.error) {
-      console.error('pat.ts serverUpdate.error:\n', serverUpdate.error);
-      return;
-    }
-
-    const embed = new EmbedBuilder()
-      .setTitle('He is very happy')
-      .setDescription(
-        `You have pat Space Bear ${supaMember.pat} amount of ${
-          supaMember.pat > 1 ? 'times' : 'time'
-        }
-        \n${interaction.guild.name} has pat Space Bear ${
-          supaServer.pat
-        } amount of ${supaServer.pat > 1 ? 'times' : 'time'}`
-      )
-      .setImage('https://media.tenor.com/KyGPQuYCdYkAAAAC/pat-garrys-mod.gif');
+  async makePages(
+    interaction: ChatInputCommandInteraction,
+    embed: EmbedBuilder
+  ): Promise<Pagination<PaginationResolver<Resolver>> | null> {
+    if (!interaction.guild) return null;
 
     const users = await supabase
       .from('member')
@@ -58,7 +34,7 @@ export class Pat {
 
     if (users.error) {
       console.error('pat.ts 38 users.error:\n', users.error);
-      return;
+      return null;
     }
 
     const sorted = users.data.sort((a, b) => b.pat - a.pat);
@@ -90,19 +66,88 @@ export class Pat {
 
       const pageDescription = pageDescriptionArray.join('\n');
 
-      const embed = new EmbedBuilder()
+      const page = new EmbedBuilder()
         .setTitle('Leaderboard')
         .setDescription(pageDescription);
 
-      pages.push({ embeds: [embed] });
+      pages.push({ embeds: [page] });
     }
 
     pages.unshift({ embeds: [embed] });
 
-    new Pagination(interaction, pages, {
+    return new Pagination(interaction, pages, {
       type: PaginationType.Button,
       showStartEnd: false,
       ephemeral: true,
-    }).send();
+    });
+  }
+
+  @Slash({ name: 'pat', description: 'Pat Space Bear!' })
+  async send(interaction: ChatInputCommandInteraction): Promise<unknown> {
+    if (!interaction.guild)
+      return interaction.reply({
+        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        ephemeral: true,
+      });
+
+    const supaMember = await getMember(
+      interaction.guild.id,
+      interaction.user.id
+    );
+    const supaServer = await getServer(interaction.guild.id);
+
+    if (
+      interaction.createdTimestamp <
+      supaMember.last_pat_timestamp + 24 * 60 * 60 * 1000
+    ) {
+      const pagination = await this.makePages(
+        interaction,
+        WarningMessage(
+          `You've already pat Space Bear today.  You can pat Space Bear again at <t:${Math.floor(
+            (interaction.createdTimestamp + 24 * 60 * 60 * 1000) / 1000
+          )}:F>`
+        )
+      );
+
+      if (!pagination)
+        return interaction.reply({
+          embeds: [ErrorMessage('An error has occured')],
+          ephemeral: true,
+        });
+
+      return await pagination.send();
+    }
+
+    supaMember.pat++;
+    supaServer.pat++;
+    supaMember.last_pat_timestamp = interaction.createdTimestamp;
+
+    setMember(interaction.guild.id, interaction.user.id, supaMember);
+    setServer(interaction.guild.id, supaServer);
+
+    const embed = new EmbedBuilder()
+      .setTitle('He is very happy')
+      .setDescription(
+        `You have pat Space Bear ${supaMember.pat} amount of ${
+          supaMember.pat > 1 ? 'times' : 'time'
+        }
+        \n${interaction.guild.name} has pat Space Bear ${
+          supaServer.pat
+        } amount of ${supaServer.pat > 1 ? 'times' : 'time'}
+        \nYou can pat Space Bear again at <t:${Math.floor(
+          (interaction.createdTimestamp + 24 * 60 * 60 * 1000) / 1000
+        )}:F>`
+      )
+      .setImage('https://media.tenor.com/KyGPQuYCdYkAAAAC/pat-garrys-mod.gif');
+
+    const pagination = await this.makePages(interaction, embed);
+
+    if (!pagination)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occured')],
+        ephemeral: true,
+      });
+
+    return await pagination.send();
   }
 }

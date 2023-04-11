@@ -1,11 +1,12 @@
 import {
   ApplicationCommandOptionType,
-  CommandInteraction,
+  ChatInputCommandInteraction,
   GuildMember,
+  InteractionResponse,
 } from 'discord.js';
 import { Discord, Slash, SlashOption } from 'discordx';
-import { ErrorMessage } from '../components/messages.js';
-import { fetchServer } from '../lib/fetchSupa.js';
+import { ErrorMessage, SuccessMessage } from '../components/messages.js';
+import { getServer } from '../lib/cacheHelpers.js';
 import userRoles from '../lib/userRoles.js';
 
 @Discord()
@@ -17,37 +18,54 @@ export class Unmute {
   async mute(
     @SlashOption({
       name: 'user',
-      description: 'User you want to mute',
+      description: 'User Search',
       required: true,
       type: ApplicationCommandOptionType.User,
     })
     user: GuildMember,
-    interaction: CommandInteraction
-  ): Promise<void> {
-    if (!interaction.guild) return;
+    interaction: ChatInputCommandInteraction
+  ): Promise<InteractionResponse<boolean>> {
+    if (!interaction.guild)
+      return interaction.reply({
+        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        ephemeral: true,
+      });
 
-    const server = await fetchServer(interaction.guild.id);
+    const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
-    if (!server) return;
-    if (!usersRoles) return;
+    if (!server)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occurred')],
+        ephemeral: true,
+      });
+    if (!usersRoles)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occurred')],
+        ephemeral: true,
+      });
 
     const isMod = usersRoles.find((v) => v === server.mod_id);
 
-    if (isMod === undefined) {
-      interaction.reply({
+    if (isMod === undefined)
+      return interaction.reply({
         embeds: [ErrorMessage('You are not a mod.')],
         ephemeral: true,
       });
-      return;
-    }
 
     const member = interaction.guild.members.cache.get(user.id);
 
-    if (!member) return;
+    if (!member)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occurred')],
+        ephemeral: true,
+      });
 
     member.timeout(null);
 
-    interaction.reply(`<@${user.id}> was unmuted`);
+    return interaction.reply({
+      embeds: [SuccessMessage(`<@${user.id}> was unmuted`)],
+      ephemeral: true,
+    });
   }
 }

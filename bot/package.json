@@ -9,27 +9,28 @@
     "build:changelog": "npx @discordx/changelog --src src",
     "start": "node build/main.js",
     "dev": "nodemon --exec ts-node-esm src/main.ts",
-    "gen-types": "supabase gen types typescript --linked > ./src/schema.ts "
+    "gen-types": "npx supabase gen types typescript --linked > ./src/schema.ts "
   },
   "dependencies": {
     "@discordx/changelog": "^2.11.5",
-    "@discordx/importer": "^1.1.10",
-    "@discordx/pagination": "^3.4.0",
-    "@discordx/plugin-ytdl-player": "^1.2.2",
-    "@supabase/supabase-js": "^2.13.0",
+    "@discordx/importer": "^1.2.1",
+    "@discordx/pagination": "^3.4.1",
+    "@discordx/plugin-ytdl-player": "^1.2.4",
+    "@supabase/supabase-js": "^2.17.0",
+    "boxen": "^7.0.2",
+    "canvas": "^2.11.2",
     "chalk": "^5.2.0",
-    "discord.js": "^14.7.1",
-    "discordx": "^11.7.0",
-    "dotenv": "^16.0.3",
-    "supabase": "^1.46.0"
+    "discord.js": "^14.9.0",
+    "discordx": "^11.7.4",
+    "dotenv": "^16.0.3"
   },
   "devDependencies": {
-    "@types/node": "^18.13.0",
+    "@types/node": "^18.15.11",
     "@types/uuid": "^9.0.1",
-    "nodemon": "^2.0.20",
-    "prettier": "^2.8.4",
+    "node-cache": "^5.1.2",
+    "nodemon": "^2.0.22",
+    "prettier": "^2.8.7",
     "ts-node": "^10.9.1",
     "typescript": "4.9.5"
   }
 }
-

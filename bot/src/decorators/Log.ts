@@ -1,17 +1,15 @@
 import {
-  CommandInteraction,
+  ChatInputCommandInteraction,
   ButtonInteraction,
   SelectMenuInteraction,
 } from 'discord.js';
 import { GuardFunction } from 'discordx';
 import chalk from 'chalk';
 
-const Log: GuardFunction<CommandInteraction | ButtonInteraction> = async (
-  args,
-  client,
-  next
-) => {
-  if (args instanceof CommandInteraction && args.user) {
+const Log: GuardFunction<
+  ChatInputCommandInteraction | ButtonInteraction
+> = async (args, client, next) => {
+  if (args instanceof ChatInputCommandInteraction && args.user) {
     console.log(
       chalk.yellow(
         `${args.user.username} (${args.user.id}): ${args.commandName}`

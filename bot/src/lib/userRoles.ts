@@ -1,6 +1,8 @@
-import { CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 
-export default async function userRoles(interaction: CommandInteraction) {
+export default async function userRoles(
+  interaction: ChatInputCommandInteraction
+) {
   if (!interaction.guild) return null;
   const guild = interaction.client.guilds.cache.get(interaction.guild.id);
   if (!guild) return null;

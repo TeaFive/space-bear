@@ -1,12 +1,12 @@
 import { SuccessMessage, ErrorMessage } from '../components/messages.js';
-
 import {
   ApplicationCommandOptionType,
-  CommandInteraction,
+  ChatInputCommandInteraction,
   GuildMember,
+  InteractionResponse,
 } from 'discord.js';
 import { Discord, Slash, SlashOption } from 'discordx';
-import { fetchServer } from '../lib/fetchSupa.js';
+import { getServer } from '../lib/cacheHelpers.js';
 import userRoles from '../lib/userRoles.js';
 
 @Discord()
@@ -18,7 +18,7 @@ export class Mute {
   async mute(
     @SlashOption({
       name: 'user',
-      description: 'User you want to mute',
+      description: 'User Search',
       required: true,
       type: ApplicationCommandOptionType.User,
     })
@@ -30,63 +30,81 @@ export class Mute {
       type: ApplicationCommandOptionType.String,
     })
     duration: string,
-    interaction: CommandInteraction
-  ): Promise<void> {
-    if (!interaction.guild) return;
+    interaction: ChatInputCommandInteraction
+  ): Promise<InteractionResponse<boolean>> {
+    if (!interaction.guild)
+      return interaction.reply({
+        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        ephemeral: true,
+      });
 
-    const server = await fetchServer(interaction.guild.id);
+    const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
-    if (!server) return;
-    if (!usersRoles) return;
+    if (!server)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occured')],
+        ephemeral: true,
+      });
+    if (!usersRoles)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occured')],
+        ephemeral: true,
+      });
 
     const isMod = usersRoles.find((v) => v === server.mod_id);
 
-    if (isMod === undefined) {
-      interaction.reply({
-        embeds: [ErrorMessage('You are not a mod.')],
+    if (isMod === undefined)
+      return interaction.reply({
+        embeds: [ErrorMessage('You are not a mod')],
         ephemeral: true,
       });
-      return;
-    }
 
     if (
       user.permissions.has('Administrator') ||
       user.permissions.has('ModerateMembers') ||
       user.permissions.has('Administrator') ||
       user.permissions.has('MuteMembers')
-    ) {
-      interaction.reply({
+    )
+      return interaction.reply({
         embeds: [ErrorMessage('That user is a mod/admin.')],
         ephemeral: true,
       });
-      return;
-    }
-
-    if (!interaction.guild) return;
 
     const member = interaction.guild.members.cache.get(user.id);
 
-    if (!member) return;
+    if (!member)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occured')],
+        ephemeral: true,
+      });
 
     if (duration === undefined) {
       member.timeout(2.419e9);
 
-      interaction.reply({
+      return interaction.reply({
         embeds: [
           SuccessMessage(
-            `**${user.user.username}#${user.user.discriminator} was muted.**`
+            `**${user.user.username}#${user.user.discriminator} was muted for 28 days**`
           ),
         ],
+        ephemeral: true,
       });
-      return;
     }
 
     const parts = duration.match(/(\d+|\D+)/g);
 
-    if (!parts) return;
+    if (!parts)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occurred')],
+        ephemeral: true,
+      });
 
-    if (Number.isNaN(parseInt(parts[0]))) return;
+    if (Number.isNaN(parseInt(parts[0])))
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occurred')],
+        ephemeral: true,
+      });
 
     if (
       parts[1] !== 's' &&
@@ -95,7 +113,14 @@ export class Mute {
       parts[1] !== 'd' &&
       parts[1] !== 'w'
     )
-      return;
+      return interaction.reply({
+        embeds: [
+          ErrorMessage(
+            'Could not determine time.  Make sure your duration follows this format:\n1s\n1m\n1hr\n1d\n1w'
+          ),
+        ],
+        ephemeral: true,
+      });
 
     let multi = 2.419e9;
 
@@ -113,12 +138,13 @@ export class Mute {
 
     member.timeout(parseInt(parts[0]) * multi);
 
-    interaction.reply({
+    return interaction.reply({
       embeds: [
         SuccessMessage(
           `***${user.user.username}#${user.user.discriminator} was muted.***`
         ),
       ],
+      ephemeral: true,
     });
   }
 }

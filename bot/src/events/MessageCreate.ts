@@ -1,48 +1,74 @@
-import { Message } from 'discord.js';
+import { Message, TextChannel } from 'discord.js';
 import type { ArgsOf } from 'discordx';
 import { Discord, On } from 'discordx';
-import { supabase } from '../main.js';
 import { Database } from '../schema.js';
-import { fetchMember } from '../lib/fetchSupa.js';
+import { getMember, getServer, setMember } from '../lib/cacheHelpers.js';
 
 type SupaMember = Database['public']['Tables']['member']['Row'];
 
 const setXpAndLevel = (member: SupaMember) => {
   let xp = member.xp + Math.floor(Math.random() * 6) + 15;
   let level = member.level;
+  let up = false;
 
   if (5 * (level ^ 2) + 50 * level + 100 - xp <= 0) {
+    up = true;
     level++;
     xp = 0;
   }
 
-  return { xp, level };
+  return { xp, level, up };
 };
 
 const Level = async (message: Message): Promise<void> => {
   if (!message.guild) return;
+  if (message.author.bot) return;
 
   const messageCreatedTimestamp = message.createdTimestamp;
 
-  const memberData = await fetchMember(message);
+  const memberData = await getMember(message.guild.id, message.author.id);
   if (!memberData) return;
+  if (
+    messageCreatedTimestamp <=
+    memberData.last_message_timestamp + 5 * 60 * 1000
+  )
+    return;
 
-  if (messageCreatedTimestamp >= memberData.last_message_timestamp + 300000) {
-    memberData.xp = setXpAndLevel(memberData).xp;
-    memberData.level = setXpAndLevel(memberData).level;
-    memberData.last_message_timestamp = messageCreatedTimestamp;
-    memberData.message++;
+  const server = await getServer(message.guild.id);
 
-    const update = await supabase
-      .from('member')
-      .update(memberData)
-      .eq('id', memberData.id);
+  if (!server) return;
 
-    if (update.error) {
-      console.error('update.error:\n', update.error);
-      return;
+  if (!server.level_comlumn.find((v) => v === message.channel.id)) return;
+
+  const XLU = setXpAndLevel(memberData);
+
+  memberData.xp = XLU.xp;
+  memberData.level = XLU.level;
+  memberData.last_message_timestamp = messageCreatedTimestamp;
+  memberData.message++;
+
+  if (XLU.up && server.level_message_channel) {
+    const channel = await message.client.channels.fetch(
+      server.level_message_channel
+    );
+    if (channel) {
+      (channel as TextChannel).send(
+        `Someones chatty! <@${message.author.id}> is now level ${memberData.level}`
+      );
+
+      if (message.member) {
+        const role = server.level_ranks.find(
+          (v) => v.level === memberData.level
+        );
+
+        if (role) {
+          message.member.roles.add(role.role_id);
+        }
+      }
     }
   }
+
+  setMember(message.guild.id, message.author.id, memberData);
 };
 
 @Discord()

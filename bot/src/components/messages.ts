@@ -1,17 +1,14 @@
 import { EmbedBuilder } from 'discord.js';
+import { bot } from '../main.js';
 
 export function ErrorMessage(message: string): EmbedBuilder {
-  const embed = new EmbedBuilder()
-    .setDescription(`<:plexError:1090288550701977791> ` + message)
-    .setColor('#ff6b6b');
-
-  return embed;
+  return new EmbedBuilder().setDescription(message).setColor('#ff6b6b');
 }
 
 export function SuccessMessage(message: string): EmbedBuilder {
-  const embed = new EmbedBuilder()
-    .setDescription(`<:plexSuccess:1090287955987415061> ` + message)
-    .setColor('#1dd1a1');
+  return new EmbedBuilder().setDescription(message).setColor('#1dd1a1');
+}
 
-  return embed;
+export function WarningMessage(message: string): EmbedBuilder {
+  return new EmbedBuilder().setDescription(message).setColor('#feca57');
 }
