@@ -68,12 +68,97 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              SuccessMessage(
+                `<@${interaction.user.id}> set the moderation role to ${role}`
+              ),
+            ],
+          });
+    }
+
     return interaction.reply({
       embeds: [
-        SuccessMessage(
-          `Users with the \`${role.name}\` now have moderator permissions`
-        ),
+        SuccessMessage(`Users with the ${role} now have moderator permissions`),
       ],
+      ephemeral: true,
+    });
+  }
+
+  @Slash({
+    name: 'mod-logs',
+    description: 'Logs channel for moderation commands',
+  })
+  @SlashGroup('config')
+  async modLogs(
+    @SlashOption({
+      name: 'channel',
+      description: 'Channel Search',
+      required: true,
+      type: ApplicationCommandOptionType.Channel,
+    })
+    channel: TextChannel,
+    interaction: ChatInputCommandInteraction
+  ): Promise<InteractionResponse<boolean>> {
+    if (!interaction.guild)
+      return interaction.reply({
+        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        ephemeral: true,
+      });
+
+    const server = await getServer(interaction.guild.id);
+    const usersRoles = await userRoles(interaction);
+
+    if (!usersRoles)
+      return interaction.reply({
+        embeds: [ErrorMessage('Could not fetch the data. Try again later')],
+        ephemeral: true,
+      });
+
+    const isMod = usersRoles.find((v) => v === server.mod_id);
+
+    if (isMod === undefined) {
+      return interaction.reply({
+        embeds: [ErrorMessage('You are not a mod.')],
+        ephemeral: true,
+      });
+    }
+
+    if (!server)
+      return interaction.reply({
+        embeds: [ErrorMessage('Could not fetch the data. Try again leter')],
+        ephemeral: true,
+      });
+
+    server.mod_log_channel = channel.id;
+
+    setServer(interaction.guild.id, server);
+
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              SuccessMessage(
+                `${interaction.user} set the moderation logs channel to ${channel}`
+              ),
+            ],
+          });
+    }
+
+    return interaction.reply({
+      embeds: [SuccessMessage(`Set the logs channel to ${channel.id}`)],
       ephemeral: true,
     });
   }
@@ -133,8 +218,24 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              SuccessMessage(
+                `${interaction.user} added ${channel} to the possible channels members can level up from`
+              ),
+            ],
+          });
+    }
+
     return interaction.reply({
-      embeds: [SuccessMessage(`Added <\#${channel.id}> to the list`)],
+      embeds: [SuccessMessage(`Added ${channel} to the list`)],
       ephemeral: true,
     });
   }
@@ -193,8 +294,24 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              SuccessMessage(
+                `${interaction.user} removed ${channel} to the possible channels members can level up from`
+              ),
+            ],
+          });
+    }
+
     return interaction.reply({
-      embeds: [SuccessMessage(`Removed <\#${channel.id}> from the list`)],
+      embeds: [SuccessMessage(`Removed ${channel.id} from the list`)],
       ephemeral: true,
     });
   }
@@ -308,6 +425,22 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              SuccessMessage(
+                `${interaction.user} set the level message log channel to ${channel}`
+              ),
+            ],
+          });
+    }
+
     return interaction.reply({
       embeds: [SuccessMessage(`Set level messages to go to <\#${channel.id}>`)],
       ephemeral: true,
@@ -381,8 +514,26 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              SuccessMessage(
+                `${interaction.user} set ${role} to be gained at level \`${level}\``
+              ),
+            ],
+          });
+    }
+
     return interaction.reply({
-      embeds: [SuccessMessage(`Set ${role} to be gained at level ${level}`)],
+      embeds: [
+        SuccessMessage(`Set ${role} to be gained at level \`${level}\``),
+      ],
       ephemeral: true,
     });
   }
@@ -449,6 +600,22 @@ export class Config {
       });
 
     setServer(interaction.guild.id, server);
+
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              SuccessMessage(
+                `${interaction.user} removed ${role} to be gained as a message level reward`
+              ),
+            ],
+          });
+    }
 
     return interaction.reply({
       embeds: [

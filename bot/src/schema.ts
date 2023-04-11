@@ -78,6 +78,7 @@ export interface Database {
           level_message_channel: string | null;
           level_ranks: LevelRoles[];
           mod_id: string | null;
+          mod_log_channel: string | null;
           pat: number;
           server_id: string;
         };
@@ -87,6 +88,7 @@ export interface Database {
           level_message_channel?: string | null;
           level_ranks?: LevelRoles[];
           mod_id?: string | null;
+          mod_log_channel?: string | null;
           pat?: number;
           server_id: string;
         };
@@ -94,8 +96,9 @@ export interface Database {
           id?: number;
           level_comlumn?: string[];
           level_message_channel?: string | null;
-          level_ranks?: LevelRoles[];
+          level_ranks?: Json[];
           mod_id?: string | null;
+          mod_log_channel?: string | null;
           pat?: number;
           server_id?: string;
         };
@@ -208,6 +211,7 @@ export interface Database {
           owner: string | null;
           path_tokens: string[] | null;
           updated_at: string | null;
+          version: string | null;
         };
         Insert: {
           bucket_id?: string | null;
@@ -219,6 +223,7 @@ export interface Database {
           owner?: string | null;
           path_tokens?: string[] | null;
           updated_at?: string | null;
+          version?: string | null;
         };
         Update: {
           bucket_id?: string | null;
@@ -230,6 +235,7 @@ export interface Database {
           owner?: string | null;
           path_tokens?: string[] | null;
           updated_at?: string | null;
+          version?: string | null;
         };
       };
     };

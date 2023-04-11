@@ -24,9 +24,17 @@ export class Mute {
     })
     user: GuildMember,
     @SlashOption({
+      name: 'reason',
+      description: 'reason to mute someone',
+      required: true,
+      type: ApplicationCommandOptionType.String,
+    })
+    reason: string,
+    @SlashOption({
       name: 'duration',
       description:
         'Duration you want to mute the user. Ex: 5s, 5m, 5hr, 5d, 5w. Max is 28 Days',
+      required: false,
       type: ApplicationCommandOptionType.String,
     })
     duration: string,
@@ -81,6 +89,30 @@ export class Mute {
 
     if (duration === undefined) {
       member.timeout(2.419e9);
+
+      if (server.mod_log_channel) {
+        const channel = await interaction.client.channels.fetch(
+          server.mod_log_channel
+        );
+
+        if (channel)
+          if (channel.isTextBased())
+            channel.send({
+              embeds: [
+                SuccessMessage(
+                  `${interaction.user} muted ${user} for 28d\nReason: ${reason}`
+                ),
+              ],
+            });
+      }
+
+      interaction.client.users.send(user.id, {
+        embeds: [
+          ErrorMessage(
+            `You have been muted in ${interaction.guild.name} for ${duration}\nReason: ${reason}`
+          ),
+        ],
+      });
 
       return interaction.reply({
         embeds: [
@@ -138,12 +170,117 @@ export class Mute {
 
     member.timeout(parseInt(parts[0]) * multi);
 
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              SuccessMessage(
+                `${interaction.user} muted ${user} for ${duration}\nReason: ${reason}`
+              ),
+            ],
+          });
+    }
+
+    interaction.client.users.send(user.id, {
+      embeds: [
+        ErrorMessage(
+          `You have been muted in ${interaction.guild.name} for ${duration}\nReason: ${reason}`
+        ),
+      ],
+    });
+
     return interaction.reply({
       embeds: [
         SuccessMessage(
           `***${user.user.username}#${user.user.discriminator} was muted.***`
         ),
       ],
+      ephemeral: true,
+    });
+  }
+
+  @Slash({
+    name: 'unmute',
+    description: 'Unmute the specified user.',
+  })
+  async unmute(
+    @SlashOption({
+      name: 'user',
+      description: 'User Search',
+      required: true,
+      type: ApplicationCommandOptionType.User,
+    })
+    user: GuildMember,
+    @SlashOption({
+      name: 'reason',
+      description: 'Reason to give',
+      required: true,
+      type: ApplicationCommandOptionType.String,
+    })
+    reason: string,
+    interaction: ChatInputCommandInteraction
+  ): Promise<InteractionResponse<boolean>> {
+    if (!interaction.guild)
+      return interaction.reply({
+        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        ephemeral: true,
+      });
+
+    const server = await getServer(interaction.guild.id);
+    const usersRoles = await userRoles(interaction);
+
+    if (!server)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occurred')],
+        ephemeral: true,
+      });
+    if (!usersRoles)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occurred')],
+        ephemeral: true,
+      });
+
+    const isMod = usersRoles.find((v) => v === server.mod_id);
+
+    if (isMod === undefined)
+      return interaction.reply({
+        embeds: [ErrorMessage('You are not a mod.')],
+        ephemeral: true,
+      });
+
+    const member = interaction.guild.members.cache.get(user.id);
+
+    if (!member)
+      return interaction.reply({
+        embeds: [ErrorMessage('An error has occurred')],
+        ephemeral: true,
+      });
+
+    member.timeout(null);
+
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              SuccessMessage(
+                `${interaction.user} unmuted ${user}\nReason: ${reason}`
+              ),
+            ],
+          });
+    }
+
+    return interaction.reply({
+      embeds: [SuccessMessage(`<@${user.id}> was unmuted`)],
       ephemeral: true,
     });
   }
