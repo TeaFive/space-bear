@@ -310,8 +310,7 @@ export class Warn {
       .delete()
       .eq('member_id', user.user.id)
       .eq('server_id', interaction.guild.id)
-      .select()
-      .limit(1);
+      .select();
 
     if (thisWarns.error) {
       console.error('warns.ts 202 thisWarns:\n', thisWarns.error);
