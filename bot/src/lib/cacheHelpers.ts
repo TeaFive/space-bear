@@ -9,9 +9,9 @@ export async function getMember(
   guild_id: string,
   member_id: string
 ): Promise<Member> {
-  const fromCache = cache.get<Member>(`member:${guild_id}-${member_id}`);
+  // const fromCache = cache.get<Member>(`member:${guild_id}-${member_id}`);
 
-  if (fromCache) return fromCache;
+  // if (fromCache) return fromCache;
 
   const result = await supabase
     .from('member')
@@ -42,9 +42,9 @@ export async function getMember(
 }
 
 export async function getServer(guild_id: string): Promise<Server> {
-  const fromCache = cache.get<Server>(`server:${guild_id}`);
+  // const fromCache = cache.get<Server>(`server:${guild_id}`);
 
-  if (fromCache) return fromCache;
+  // if (fromCache) return fromCache;
 
   const result = await supabase
     .from('server')
