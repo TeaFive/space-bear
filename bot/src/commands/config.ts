@@ -42,6 +42,8 @@ export class Config {
         ephemeral: true,
       });
 
+    await interaction.deferReply({ ephemeral: true });
+
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
@@ -114,6 +116,8 @@ export class Config {
         ephemeral: true,
       });
 
+    await interaction.deferReply({ ephemeral: true });
+
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
@@ -184,6 +188,8 @@ export class Config {
         embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
+
+    await interaction.deferReply({ ephemeral: true });
 
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
@@ -262,6 +268,8 @@ export class Config {
         ephemeral: true,
       });
 
+    await interaction.deferReply({ ephemeral: true });
+
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
@@ -331,6 +339,8 @@ export class Config {
         ephemeral: true,
       });
 
+    await interaction.deferReply({ ephemeral: true });
+
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
@@ -398,6 +408,8 @@ export class Config {
         embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
+
+    await interaction.deferReply({ ephemeral: true });
 
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
@@ -558,6 +570,8 @@ export class Config {
         ephemeral: true,
       });
 
+    await interaction.deferReply({ ephemeral: true });
+
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
@@ -635,6 +649,8 @@ export class Config {
         embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
+
+    await interaction.deferReply({ ephemeral: true });
 
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);

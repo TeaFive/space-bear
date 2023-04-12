@@ -90,6 +90,8 @@ export class Pat {
         ephemeral: true,
       });
 
+    await interaction.deferReply({ ephemeral: true });
+
     const supaMember = await getMember(
       interaction.guild.id,
       interaction.user.id

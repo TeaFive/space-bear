@@ -46,6 +46,8 @@ export class Mute {
         ephemeral: true,
       });
 
+    await interaction.deferReply({ ephemeral: true });
+
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
@@ -230,6 +232,8 @@ export class Mute {
         embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
+
+    await interaction.deferReply({ ephemeral: true });
 
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
