@@ -1,4 +1,4 @@
-import { ErrorMessage, SuccessMessage } from '../components/messages.js';
+import { RedEmbed, GreenEmbed, BlueEmbed } from '../components/embeds.js';
 import {
   APIEmbedField,
   ApplicationCommandOptionType,
@@ -36,7 +36,7 @@ export class Warn {
   ): Promise<InteractionResponse<boolean>> {
     if (!interaction.guild)
       return interaction.reply({
-        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
 
@@ -45,12 +45,12 @@ export class Warn {
 
     if (!server)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
     if (!usersRoles)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
 
@@ -58,7 +58,7 @@ export class Warn {
 
     if (isMod === undefined)
       return interaction.reply({
-        embeds: [ErrorMessage('You are not a mod.')],
+        embeds: [RedEmbed('You are not a mod.')],
         ephemeral: true,
       });
 
@@ -76,7 +76,7 @@ export class Warn {
     if (thisWarn.error) {
       console.error('thisWarn:\n', thisWarn.error);
       return interaction.reply({
-        embeds: [ErrorMessage('A server error has occurred.')],
+        embeds: [RedEmbed('A server error has occurred.')],
         ephemeral: true,
       });
     }
@@ -89,10 +89,27 @@ export class Warn {
 
     client.users.send(user.user.id, { embeds: [embed] });
 
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              BlueEmbed({
+                description: `${interaction.user} warned ${user}\nReason: ${reason}`,
+                footer: { text: `id: ${thisWarn.data[0].id}` },
+              }),
+            ],
+          });
+    }
+
     return interaction.reply({
       embeds: [
-        SuccessMessage(
-          `***${user.user.username}#${user.user.discriminator} has been warned***`
+        GreenEmbed(
+          `**${user.user.username}#${user.user.discriminator} has been warned**`
         ),
       ],
       ephemeral: true,
@@ -112,7 +129,7 @@ export class Warn {
   ): Promise<InteractionResponse<boolean>> {
     if (!interaction.guild)
       return interaction.reply({
-        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
 
@@ -121,12 +138,12 @@ export class Warn {
 
     if (!server)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
     if (!usersRoles)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
 
@@ -134,7 +151,7 @@ export class Warn {
 
     if (isMod === undefined)
       return interaction.reply({
-        embeds: [ErrorMessage('You are not a mod.')],
+        embeds: [RedEmbed('You are not a mod.')],
         ephemeral: true,
       });
 
@@ -147,14 +164,14 @@ export class Warn {
     if (thisWarns.error) {
       console.error('warns.ts 87 thisWarns.error:\n', thisWarns.error);
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
     }
 
     if (thisWarns.data.length < 1)
       return interaction.reply({
-        embeds: [ErrorMessage('There are no warnings')],
+        embeds: [RedEmbed('There are no warnings')],
         ephemeral: true,
       });
 
@@ -205,7 +222,7 @@ export class Warn {
   ): Promise<InteractionResponse<boolean>> {
     if (!interaction.guild)
       return interaction.reply({
-        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
 
@@ -214,12 +231,12 @@ export class Warn {
 
     if (!server)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
     if (!usersRoles)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
 
@@ -227,7 +244,7 @@ export class Warn {
 
     if (isMod === undefined)
       return interaction.reply({
-        embeds: [ErrorMessage('You are not a mod.')],
+        embeds: [RedEmbed('You are not a mod.')],
         ephemeral: true,
       });
 
@@ -240,22 +257,39 @@ export class Warn {
     if (del.error) {
       console.error('warns.ts 153 del.error:\n', del.error);
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
     }
 
     if (del.data.length < 1)
       return interaction.reply({
-        embeds: [ErrorMessage('Invalid warning ID')],
+        embeds: [RedEmbed('Invalid warning ID')],
         ephemeral: true,
       });
 
     const user = await interaction.client.users.fetch(del.data[0].member_id);
 
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              BlueEmbed({
+                description: `${interaction.user} deleted a warn off of ${user}\nWarn Reason: ${del.data[0].reason}`,
+                footer: { text: `id: ${del.data[0].id}` },
+              }),
+            ],
+          });
+    }
+
     return interaction.reply({
       embeds: [
-        SuccessMessage(
+        GreenEmbed(
           `Deleted warning \`${warningID}\` for ${user.username}#${user.discriminator}`
         ),
       ],
@@ -279,7 +313,7 @@ export class Warn {
   ): Promise<InteractionResponse<boolean>> {
     if (!interaction.guild)
       return interaction.reply({
-        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
 
@@ -288,12 +322,12 @@ export class Warn {
 
     if (!server)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
     if (!usersRoles)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
 
@@ -301,7 +335,7 @@ export class Warn {
 
     if (isMod === undefined)
       return interaction.reply({
-        embeds: [ErrorMessage('You are not a mod.')],
+        embeds: [RedEmbed('You are not a mod.')],
         ephemeral: true,
       });
 
@@ -315,7 +349,7 @@ export class Warn {
     if (thisWarns.error) {
       console.error('warns.ts 202 thisWarns:\n', thisWarns.error);
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
     }
@@ -323,7 +357,7 @@ export class Warn {
     if (thisWarns.data.length < 1) {
       return interaction.reply({
         embeds: [
-          ErrorMessage(
+          RedEmbed(
             `No warnings found for ${user.user.username}#${user.user.discriminator}`
           ),
         ],
@@ -331,9 +365,23 @@ export class Warn {
       });
     }
 
+    if (server.mod_log_channel) {
+      const channel = await interaction.client.channels.fetch(
+        server.mod_log_channel
+      );
+
+      if (channel)
+        if (channel.isTextBased())
+          channel.send({
+            embeds: [
+              BlueEmbed(`${interaction.user} cleared all of ${user}s warnings`),
+            ],
+          });
+    }
+
     return interaction.reply({
       embeds: [
-        SuccessMessage(
+        GreenEmbed(
           `Cleared ${thisWarns.data.length} ${
             thisWarns.data.length > 1 ? 'warnings' : 'warning'
           } for ${user.user.username}#${user.user.discriminator}`

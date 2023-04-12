@@ -1,4 +1,4 @@
-import { SuccessMessage, ErrorMessage } from '../components/messages.js';
+import { GreenEmbed, RedEmbed, BlueEmbed } from '../components/embeds.js';
 import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
@@ -42,7 +42,7 @@ export class Mute {
   ): Promise<InteractionResponse<boolean>> {
     if (!interaction.guild)
       return interaction.reply({
-        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
 
@@ -51,12 +51,12 @@ export class Mute {
 
     if (!server)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occured')],
+        embeds: [RedEmbed('An error has occured')],
         ephemeral: true,
       });
     if (!usersRoles)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occured')],
+        embeds: [RedEmbed('An error has occured')],
         ephemeral: true,
       });
 
@@ -64,7 +64,7 @@ export class Mute {
 
     if (isMod === undefined)
       return interaction.reply({
-        embeds: [ErrorMessage('You are not a mod')],
+        embeds: [RedEmbed('You are not a mod')],
         ephemeral: true,
       });
 
@@ -75,7 +75,7 @@ export class Mute {
       user.permissions.has('MuteMembers')
     )
       return interaction.reply({
-        embeds: [ErrorMessage('That user is a mod/admin.')],
+        embeds: [RedEmbed('That user is a mod/admin.')],
         ephemeral: true,
       });
 
@@ -83,7 +83,7 @@ export class Mute {
 
     if (!member)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occured')],
+        embeds: [RedEmbed('An error has occured')],
         ephemeral: true,
       });
 
@@ -99,7 +99,7 @@ export class Mute {
           if (channel.isTextBased())
             channel.send({
               embeds: [
-                SuccessMessage(
+                BlueEmbed(
                   `${interaction.user} muted ${user} for 28d\nReason: ${reason}`
                 ),
               ],
@@ -108,7 +108,7 @@ export class Mute {
 
       interaction.client.users.send(user.id, {
         embeds: [
-          ErrorMessage(
+          RedEmbed(
             `You have been muted in ${interaction.guild.name} for ${duration}\nReason: ${reason}`
           ),
         ],
@@ -116,7 +116,7 @@ export class Mute {
 
       return interaction.reply({
         embeds: [
-          SuccessMessage(
+          GreenEmbed(
             `**${user.user.username}#${user.user.discriminator} was muted for 28 days**`
           ),
         ],
@@ -128,13 +128,13 @@ export class Mute {
 
     if (!parts)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
 
     if (Number.isNaN(parseInt(parts[0])))
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
 
@@ -147,7 +147,7 @@ export class Mute {
     )
       return interaction.reply({
         embeds: [
-          ErrorMessage(
+          RedEmbed(
             'Could not determine time.  Make sure your duration follows this format:\n1s\n1m\n1hr\n1d\n1w'
           ),
         ],
@@ -179,7 +179,7 @@ export class Mute {
         if (channel.isTextBased())
           channel.send({
             embeds: [
-              SuccessMessage(
+              BlueEmbed(
                 `${interaction.user} muted ${user} for ${duration}\nReason: ${reason}`
               ),
             ],
@@ -188,7 +188,7 @@ export class Mute {
 
     interaction.client.users.send(user.id, {
       embeds: [
-        ErrorMessage(
+        RedEmbed(
           `You have been muted in ${interaction.guild.name} for ${duration}\nReason: ${reason}`
         ),
       ],
@@ -196,7 +196,7 @@ export class Mute {
 
     return interaction.reply({
       embeds: [
-        SuccessMessage(
+        GreenEmbed(
           `***${user.user.username}#${user.user.discriminator} was muted.***`
         ),
       ],
@@ -227,7 +227,7 @@ export class Mute {
   ): Promise<InteractionResponse<boolean>> {
     if (!interaction.guild)
       return interaction.reply({
-        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
 
@@ -236,12 +236,12 @@ export class Mute {
 
     if (!server)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
     if (!usersRoles)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
 
@@ -249,7 +249,7 @@ export class Mute {
 
     if (isMod === undefined)
       return interaction.reply({
-        embeds: [ErrorMessage('You are not a mod.')],
+        embeds: [RedEmbed('You are not a mod.')],
         ephemeral: true,
       });
 
@@ -257,7 +257,7 @@ export class Mute {
 
     if (!member)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occurred')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
 
@@ -272,7 +272,7 @@ export class Mute {
         if (channel.isTextBased())
           channel.send({
             embeds: [
-              SuccessMessage(
+              BlueEmbed(
                 `${interaction.user} unmuted ${user}\nReason: ${reason}`
               ),
             ],
@@ -280,7 +280,7 @@ export class Mute {
     }
 
     return interaction.reply({
-      embeds: [SuccessMessage(`<@${user.id}> was unmuted`)],
+      embeds: [GreenEmbed(`<@${user.id}> was unmuted`)],
       ephemeral: true,
     });
   }

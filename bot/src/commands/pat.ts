@@ -17,7 +17,7 @@ import {
   setServer,
 } from '../lib/cacheHelpers.js';
 import { Discord, Slash } from 'discordx';
-import { ErrorMessage, WarningMessage } from '../components/messages.js';
+import { RedEmbed, YellowEmbed } from '../components/embeds.js';
 
 @Discord()
 export class Pat {
@@ -86,7 +86,7 @@ export class Pat {
   async send(interaction: ChatInputCommandInteraction): Promise<unknown> {
     if (!interaction.guild)
       return interaction.reply({
-        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
 
@@ -102,7 +102,7 @@ export class Pat {
     ) {
       const pagination = await this.makePages(
         interaction,
-        WarningMessage(
+        YellowEmbed(
           `You've already pat Space Bear today.  You can pat Space Bear again at <t:${Math.floor(
             supaMember.last_pat_timestamp / 1000
           )}:F>`
@@ -111,7 +111,7 @@ export class Pat {
 
       if (!pagination)
         return interaction.reply({
-          embeds: [ErrorMessage('An error has occured')],
+          embeds: [RedEmbed('An error has occured')],
           ephemeral: true,
         });
 
@@ -144,7 +144,7 @@ export class Pat {
 
     if (!pagination)
       return interaction.reply({
-        embeds: [ErrorMessage('An error has occured')],
+        embeds: [RedEmbed('An error has occured')],
         ephemeral: true,
       });
 

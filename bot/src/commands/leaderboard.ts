@@ -1,4 +1,4 @@
-import { ErrorMessage } from '../components/messages.js';
+import { RedEmbed } from '../components/embeds.js';
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -17,7 +17,7 @@ export class Pat {
   ): Promise<InteractionResponse<boolean>> {
     if (!interaction.guild)
       return interaction.reply({
-        embeds: [ErrorMessage('You cannot use this command in non-servers')],
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
         ephemeral: true,
       });
 
