@@ -159,7 +159,7 @@ export class Config {
     }
 
     return interaction.reply({
-      embeds: [GreenEmbed(`Set the logs channel to ${channel.id}`)],
+      embeds: [GreenEmbed(`Set the logs channel to ${channel}`)],
       ephemeral: true,
     });
   }
