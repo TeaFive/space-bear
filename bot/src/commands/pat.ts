@@ -105,7 +105,7 @@ export class Pat {
       const pagination = await this.makePages(
         interaction,
         YellowEmbed(
-          `You've already pat Space Bear today.  You can pat Space Bear again at <t:${Math.floor(
+          `You've already pat Space Bear today. You can pat Space Bear again on <t:${Math.floor(
             supaMember.last_pat_timestamp / 1000
           )}:F>`
         )
@@ -113,7 +113,7 @@ export class Pat {
 
       if (!pagination)
         return interaction.reply({
-          embeds: [RedEmbed('An error has occured')],
+          embeds: [RedEmbed('An error has occurred')],
           ephemeral: true,
         });
 
@@ -130,13 +130,13 @@ export class Pat {
     const embed = new EmbedBuilder()
       .setTitle('He is very happy')
       .setDescription(
-        `You have pat Space Bear ${supaMember.pat} amount of ${
+        `You have pat Space Bear ${supaMember.pat} ${
           supaMember.pat > 1 ? 'times' : 'time'
         }
         \n${interaction.guild.name} has pat Space Bear ${
           supaServer.pat
-        } amount of ${supaServer.pat > 1 ? 'times' : 'time'}
-        \nYou can pat Space Bear again at <t:${Math.floor(
+        } ${supaServer.pat > 1 ? 'times' : 'time'}
+        \nYou can pat Space Bear again on <t:${Math.floor(
           (interaction.createdTimestamp + 24 * 60 * 60 * 1000) / 1000
         )}:F>`
       )
@@ -146,7 +146,7 @@ export class Pat {
 
     if (!pagination)
       return interaction.reply({
-        embeds: [RedEmbed('An error has occured')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
 
