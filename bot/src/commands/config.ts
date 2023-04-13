@@ -3,6 +3,7 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
   InteractionResponse,
+  Message,
   Role,
   TextChannel,
 } from 'discord.js';
@@ -13,8 +14,8 @@ import {
   YellowEmbed,
   BlueEmbed,
 } from '../components/embeds.js';
-import userRoles from '../lib/userRoles.js';
 import { getServer, setServer } from '../lib/cacheHelpers.js';
+import isMod from '../lib/isMod.js';
 
 @Discord()
 @SlashGroup({ name: 'config', description: 'Config for the bot' })
@@ -35,36 +36,19 @@ export class Config {
     })
     role: Role,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined)
-      return interaction.reply({
-        embeds: [RedEmbed('You are not a mod')],
-        ephemeral: true,
-      });
-
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again leter')],
-        ephemeral: true,
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
+        embeds: [RedEmbed('You are not a mod.')],
       });
 
     server.mod_id = role.id;
@@ -87,11 +71,10 @@ export class Config {
           });
     }
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [
         GreenEmbed(`Users with the ${role} now have moderator permissions`),
       ],
-      ephemeral: true,
     });
   }
 
@@ -109,37 +92,19 @@ export class Config {
     })
     channel: TextChannel,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined) {
-      return interaction.reply({
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
-      });
-    }
-
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again leter')],
-        ephemeral: true,
       });
 
     server.mod_log_channel = channel.id;
@@ -162,9 +127,8 @@ export class Config {
           });
     }
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [GreenEmbed(`Set the logs channel to ${channel}`)],
-      ephemeral: true,
     });
   }
 
@@ -182,43 +146,24 @@ export class Config {
     })
     channel: TextChannel,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined) {
-      return interaction.reply({
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
-      });
-    }
-
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again leter')],
-        ephemeral: true,
       });
 
     if (server.level_comlumn.find((v) => v === channel.id))
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [YellowEmbed('Channel is already added')],
-        ephemeral: true,
       });
 
     server.level_comlumn.push(channel.id);
@@ -241,9 +186,8 @@ export class Config {
           });
     }
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [GreenEmbed(`Added ${channel} to the list`)],
-      ephemeral: true,
     });
   }
 
@@ -261,42 +205,19 @@ export class Config {
     })
     channel: TextChannel,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined) {
-      return interaction.reply({
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
-      });
-    }
-
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
       });
 
     server.level_comlumn = server.level_comlumn.filter((v) => v !== channel.id);
@@ -319,9 +240,8 @@ export class Config {
           });
     }
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [GreenEmbed(`Removed ${channel.id} from the list`)],
-      ephemeral: true,
     });
   }
 
@@ -332,48 +252,24 @@ export class Config {
   @SlashGroup('level-message', 'config')
   async levelMessageListChannels(
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined) {
-      return interaction.reply({
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
-      });
-    }
-
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
       });
 
     if (server.level_comlumn.length < 1)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('There are no channels')],
-        ephemeral: true,
       });
 
     const channels = server.level_comlumn.map((v) => `<#${v}>`).join('\n');
@@ -382,9 +278,8 @@ export class Config {
       .setTitle('Channels:')
       .setDescription(channels);
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [embed],
-      ephemeral: true,
     });
   }
 
@@ -402,37 +297,20 @@ export class Config {
     })
     channel: TextChannel,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined) {
-      return interaction.reply({
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
       });
-    }
 
     server.level_message_channel = channel.id;
 
@@ -454,9 +332,8 @@ export class Config {
           });
     }
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [GreenEmbed(`Set level messages to go to <\#${channel.id}>`)],
-      ephemeral: true,
     });
   }
 
@@ -489,31 +366,10 @@ export class Config {
       });
 
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined) {
+    if (!(await isMod(interaction, server)))
       return interaction.reply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
-      });
-    }
-
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again leter')],
         ephemeral: true,
       });
 
@@ -563,42 +419,19 @@ export class Config {
     })
     role: Role,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined) {
-      return interaction.reply({
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
-      });
-    }
-
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again leter')],
-        ephemeral: true,
       });
 
     const old = server.level_ranks;
@@ -607,9 +440,8 @@ export class Config {
     );
 
     if (JSON.stringify(old) === JSON.stringify(server.level_ranks))
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [YellowEmbed('Role not found in list')],
-        ephemeral: true,
       });
 
     setServer(interaction.guild.id, server);
@@ -630,9 +462,8 @@ export class Config {
           });
     }
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [GreenEmbed(`Removed ${role} from the list of roles to gain`)],
-      ephemeral: true,
     });
   }
 
@@ -643,48 +474,38 @@ export class Config {
   @SlashGroup('level-message', 'config')
   async levelMessageListRoles(
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
+    // const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
-      });
+    // if (!usersRoles)
+    //   return interaction.editReply({
+    //     embeds: [RedEmbed('Could not fetch the data. Try again later')],
+    //   });
 
-    const isMod = usersRoles.find((v) => v === server.mod_id);
+    // const isMod = usersRoles.find((v) => v === server.mod_id);
 
-    if (isMod === undefined) {
-      return interaction.reply({
+    // if (isMod === undefined) {
+    //   return interaction.editReply({
+    //     embeds: [RedEmbed('You are not a mod.')],
+    //   });
+    // }
+
+    if (!isMod(interaction, server))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
-      });
-    }
-
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('Could not fetch the data. Try again later')],
-        ephemeral: true,
       });
 
     if (server.level_ranks.length < 1)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('There are no roles')],
-        ephemeral: true,
       });
 
     const ranks = server.level_ranks
@@ -693,6 +514,6 @@ export class Config {
 
     const embed = new EmbedBuilder().setTitle('Ranks:').setDescription(ranks);
 
-    return interaction.reply({ embeds: [embed], ephemeral: true });
+    return interaction.editReply({ embeds: [embed] });
   }
 }

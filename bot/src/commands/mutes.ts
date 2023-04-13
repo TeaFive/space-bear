@@ -4,6 +4,7 @@ import {
   ChatInputCommandInteraction,
   GuildMember,
   InteractionResponse,
+  Message,
 } from 'discord.js';
 import { Discord, Slash, SlashOption } from 'discordx';
 import { getServer } from '../lib/cacheHelpers.js';
@@ -39,35 +40,27 @@ export class Mute {
     })
     duration: string,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
+
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
 
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('An error has occured')],
-        ephemeral: true,
-      });
     if (!usersRoles)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('An error has occured')],
-        ephemeral: true,
       });
 
     const isMod = usersRoles.find((v) => v === server.mod_id);
 
     if (isMod === undefined)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod')],
-        ephemeral: true,
       });
 
     if (
@@ -76,17 +69,15 @@ export class Mute {
       user.permissions.has('Administrator') ||
       user.permissions.has('MuteMembers')
     )
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('That user is a mod/admin.')],
-        ephemeral: true,
       });
 
     const member = interaction.guild.members.cache.get(user.id);
 
     if (!member)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('An error has occured')],
-        ephemeral: true,
       });
 
     if (duration === undefined) {
@@ -116,28 +107,25 @@ export class Mute {
         ],
       });
 
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [
           GreenEmbed(
             `**${user.user.username}#${user.user.discriminator} was muted for 28 days**`
           ),
         ],
-        ephemeral: true,
       });
     }
 
     const parts = duration.match(/(\d+|\D+)/g);
 
     if (!parts)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
       });
 
     if (Number.isNaN(parseInt(parts[0])))
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
       });
 
     if (
@@ -147,13 +135,12 @@ export class Mute {
       parts[1] !== 'd' &&
       parts[1] !== 'w'
     )
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [
           RedEmbed(
             'Could not determine time.  Make sure your duration follows this format:\n1s\n1m\n1hr\n1d\n1w'
           ),
         ],
-        ephemeral: true,
       });
 
     let multi = 2.419e9;
@@ -196,13 +183,12 @@ export class Mute {
       ],
     });
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [
         GreenEmbed(
           `***${user.user.username}#${user.user.discriminator} was muted.***`
         ),
       ],
-      ephemeral: true,
     });
   }
 
@@ -226,43 +212,34 @@ export class Mute {
     })
     reason: string,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
+
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
 
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
-      });
     if (!usersRoles)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
       });
 
     const isMod = usersRoles.find((v) => v === server.mod_id);
 
     if (isMod === undefined)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
       });
 
     const member = interaction.guild.members.cache.get(user.id);
 
     if (!member)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
       });
 
     member.timeout(null);
@@ -283,9 +260,8 @@ export class Mute {
           });
     }
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [GreenEmbed(`<@${user.id}> was unmuted`)],
-      ephemeral: true,
     });
   }
 }

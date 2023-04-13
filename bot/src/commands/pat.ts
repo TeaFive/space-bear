@@ -84,13 +84,12 @@ export class Pat {
 
   @Slash({ name: 'pat', description: 'Pat Space Bear!' })
   async send(interaction: ChatInputCommandInteraction): Promise<unknown> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
     await interaction.deferReply({ ephemeral: true });
+
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
 
     const supaMember = await getMember(
       interaction.guild.id,

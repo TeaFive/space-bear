@@ -7,11 +7,12 @@ import {
   EmbedBuilder,
   GuildMember,
   InteractionResponse,
+  Message,
 } from 'discord.js';
 import { Discord, Slash, SlashOption } from 'discordx';
 import { supabase } from '../main.js';
 import { getServer } from '../lib/cacheHelpers.js';
-import userRoles from '../lib/userRoles.js';
+import isMod from '../lib/isMod.js';
 
 @Discord()
 export class Warn {
@@ -33,35 +34,19 @@ export class Warn {
     reason: string,
     interaction: ChatInputCommandInteraction,
     client: Client
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
-      });
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined)
-      return interaction.reply({
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
       });
 
     const thisWarn = await supabase
@@ -77,9 +62,8 @@ export class Warn {
 
     if (thisWarn.error) {
       console.error('thisWarn:\n', thisWarn.error);
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('A server error has occurred.')],
-        ephemeral: true,
       });
     }
 
@@ -108,13 +92,12 @@ export class Warn {
           });
     }
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [
         GreenEmbed(
           `**${user.user.username}#${user.user.discriminator} has been warned**`
         ),
       ],
-      ephemeral: true,
     });
   }
 
@@ -128,35 +111,19 @@ export class Warn {
     })
     user: GuildMember,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
-      });
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined)
-      return interaction.reply({
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
       });
 
     const thisWarns = await supabase
@@ -167,16 +134,14 @@ export class Warn {
 
     if (thisWarns.error) {
       console.error('warns.ts 87 thisWarns.error:\n', thisWarns.error);
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
       });
     }
 
     if (thisWarns.data.length < 1)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('There are no warnings')],
-        ephemeral: true,
       });
 
     const fields: APIEmbedField[] = [];
@@ -207,7 +172,7 @@ export class Warn {
       .addFields(fields)
       .setColor('#ff6b6b');
 
-    return interaction.reply({ embeds: [embed], ephemeral: true });
+    return interaction.editReply({ embeds: [embed] });
   }
 
   @Slash({
@@ -223,35 +188,19 @@ export class Warn {
     })
     warningID: string,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
-      });
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined)
-      return interaction.reply({
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
       });
 
     const del = await supabase
@@ -262,16 +211,14 @@ export class Warn {
 
     if (del.error) {
       console.error('warns.ts 153 del.error:\n', del.error);
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
       });
     }
 
     if (del.data.length < 1)
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('Invalid warning ID')],
-        ephemeral: true,
       });
 
     const user = await interaction.client.users.fetch(del.data[0].member_id);
@@ -293,13 +240,12 @@ export class Warn {
           });
     }
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [
         GreenEmbed(
           `Deleted warning \`${warningID}\` for ${user.username}#${user.discriminator}`
         ),
       ],
-      ephemeral: true,
     });
   }
 
@@ -316,35 +262,19 @@ export class Warn {
     })
     user: GuildMember,
     interaction: ChatInputCommandInteraction
-  ): Promise<InteractionResponse<boolean>> {
-    if (!interaction.guild)
-      return interaction.reply({
-        embeds: [RedEmbed('You cannot use this command in non-servers')],
-        ephemeral: true,
-      });
-
+  ): Promise<Message<boolean>> {
     await interaction.deferReply({ ephemeral: true });
 
+    if (!interaction.guild)
+      return interaction.editReply({
+        embeds: [RedEmbed('You cannot use this command in non-servers')],
+      });
+
     const server = await getServer(interaction.guild.id);
-    const usersRoles = await userRoles(interaction);
 
-    if (!server)
-      return interaction.reply({
-        embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
-      });
-    if (!usersRoles)
-      return interaction.reply({
-        embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined)
-      return interaction.reply({
+    if (!(await isMod(interaction, server)))
+      return interaction.editReply({
         embeds: [RedEmbed('You are not a mod.')],
-        ephemeral: true,
       });
 
     const thisWarns = await supabase
@@ -356,20 +286,18 @@ export class Warn {
 
     if (thisWarns.error) {
       console.error('warns.ts 202 thisWarns:\n', thisWarns.error);
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [RedEmbed('An error has occurred')],
-        ephemeral: true,
       });
     }
 
     if (thisWarns.data.length < 1) {
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [
           RedEmbed(
             `No warnings found for ${user.user.username}#${user.user.discriminator}`
           ),
         ],
-        ephemeral: true,
       });
     }
 
@@ -387,7 +315,7 @@ export class Warn {
           });
     }
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [
         GreenEmbed(
           `Cleared ${thisWarns.data.length} ${
@@ -395,7 +323,6 @@ export class Warn {
           } for ${user.user.username}#${user.user.discriminator}`
         ),
       ],
-      ephemeral: true,
     });
   }
 }
