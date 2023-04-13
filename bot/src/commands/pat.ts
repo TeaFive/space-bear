@@ -101,7 +101,7 @@ export class Pat {
         interaction,
         YellowEmbed(
           `You've already pat Space Bear today. You can pat Space Bear again on <t:${Math.floor(
-            supaMember.last_pat_timestamp / 1000
+            (supaMember.last_pat_timestamp + 24 * 60 * 60 * 1000) / 1000
           )}:F>`
         )
       );
