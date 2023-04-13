@@ -4,11 +4,7 @@ import {
   PaginationType,
   Resolver,
 } from '@discordx/pagination';
-import {
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-  InteractionResponse,
-} from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { supabase } from '../main.js';
 import {
   getMember,
@@ -132,9 +128,9 @@ export class Pat {
         `You have pat Space Bear ${supaMember.pat} ${
           supaMember.pat > 1 ? 'times' : 'time'
         }
-        \n${interaction.guild.name} has pat Space Bear ${
-          supaServer.pat
-        } ${supaServer.pat > 1 ? 'times' : 'time'}
+        \n${interaction.guild.name} has pat Space Bear ${supaServer.pat} ${
+          supaServer.pat > 1 ? 'times' : 'time'
+        }
         \nYou can pat Space Bear again on <t:${Math.floor(
           (interaction.createdTimestamp + 24 * 60 * 60 * 1000) / 1000
         )}:F>`

@@ -6,13 +6,11 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
   GuildMember,
-  InteractionResponse,
   Message,
 } from 'discord.js';
 import { Discord, Slash, SlashOption } from 'discordx';
 import { supabase } from '../main.js';
-import { getServer } from '../lib/cacheHelpers.js';
-import isMod from '../lib/isMod.js';
+import { getServer, isMod, modLog } from '../lib/index.js';
 
 @Discord()
 export class Warn {
@@ -75,22 +73,14 @@ export class Warn {
 
     client.users.send(user.user.id, { embeds: [embed] });
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed({
-                description: `${interaction.user} warned ${user}\nReason: ${reason}`,
-                footer: { text: `id: ${thisWarn.data[0].id}` },
-              }),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed({
+        description: `${interaction.user} warned ${user}\nReason: ${reason}`,
+        footer: { text: `id: ${thisWarn.data[0].id}` },
+      }),
+      interaction,
+      server
+    );
 
     return interaction.editReply({
       embeds: [
@@ -223,22 +213,14 @@ export class Warn {
 
     const user = await interaction.client.users.fetch(del.data[0].member_id);
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed({
-                description: `${interaction.user} deleted a warn off of ${user}\nWarn Reason: ${del.data[0].reason}`,
-                footer: { text: `id: ${del.data[0].id}` },
-              }),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed({
+        description: `${interaction.user} deleted a warn off of ${user}\nWarn Reason: ${del.data[0].reason}`,
+        footer: { text: `id: ${del.data[0].id}` },
+      }),
+      interaction,
+      server
+    );
 
     return interaction.editReply({
       embeds: [
@@ -301,19 +283,11 @@ export class Warn {
       });
     }
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed(`${interaction.user} cleared all of ${user}s warnings`),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed(`${interaction.user} cleared all of ${user}s warnings`),
+      interaction,
+      server
+    );
 
     return interaction.editReply({
       embeds: [

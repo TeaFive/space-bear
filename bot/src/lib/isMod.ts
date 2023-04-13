@@ -1,10 +1,10 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 import { Database } from 'schema';
-import userRoles from './userRoles.js';
+import { userRoles } from './userRoles.js';
 
 type Server = Database['public']['Tables']['server']['Row'];
 
-export default async function isMod(
+export async function isMod(
   interaction: ChatInputCommandInteraction,
   server: Server
 ): Promise<boolean> {

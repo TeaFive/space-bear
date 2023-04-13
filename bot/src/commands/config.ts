@@ -14,8 +14,7 @@ import {
   YellowEmbed,
   BlueEmbed,
 } from '../components/embeds.js';
-import { getServer, setServer } from '../lib/cacheHelpers.js';
-import isMod from '../lib/isMod.js';
+import { getServer, setServer, isMod, modLog } from '../lib/index.js';
 
 @Discord()
 @SlashGroup({ name: 'config', description: 'Config for the bot' })
@@ -55,21 +54,11 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed(
-                `<@${interaction.user.id}> set the moderation role to ${role}`
-              ),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed(`<@${interaction.user.id}> set the moderation role to ${role}`),
+      interaction,
+      server
+    );
 
     return interaction.editReply({
       embeds: [
@@ -111,21 +100,13 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed(
-                `${interaction.user} set the moderation logs channel to ${channel}`
-              ),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed(
+        `${interaction.user} set the moderation logs channel to ${channel}`
+      ),
+      interaction,
+      server
+    );
 
     return interaction.editReply({
       embeds: [GreenEmbed(`Set the logs channel to ${channel}`)],
@@ -170,21 +151,13 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed(
-                `${interaction.user} added ${channel} to the possible channels members can level up from`
-              ),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed(
+        `${interaction.user} added ${channel} to the possible channels members can level up from`
+      ),
+      interaction,
+      server
+    );
 
     return interaction.editReply({
       embeds: [GreenEmbed(`Added ${channel} to the list`)],
@@ -224,21 +197,13 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed(
-                `${interaction.user} removed ${channel} to the possible channels members can level up from`
-              ),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed(
+        `${interaction.user} removed ${channel} to the possible channels members can level up from`
+      ),
+      interaction,
+      server
+    );
 
     return interaction.editReply({
       embeds: [GreenEmbed(`Removed ${channel.id} from the list`)],
@@ -316,21 +281,13 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed(
-                `${interaction.user} set the level message log channel to ${channel}`
-              ),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed(
+        `${interaction.user} set the level message log channel to ${channel}`
+      ),
+      interaction,
+      server
+    );
 
     return interaction.editReply({
       embeds: [GreenEmbed(`Set level messages to go to <\#${channel.id}>`)],
@@ -383,21 +340,13 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed(
-                `${interaction.user} set ${role} to be gained at level \`${level}\``
-              ),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed(
+        `${interaction.user} set ${role} to be gained at level \`${level}\``
+      ),
+      interaction,
+      server
+    );
 
     return interaction.reply({
       embeds: [GreenEmbed(`Set ${role} to be gained at level \`${level}\``)],
@@ -446,21 +395,13 @@ export class Config {
 
     setServer(interaction.guild.id, server);
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed(
-                `${interaction.user} removed ${role} to be gained as a message level reward`
-              ),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed(
+        `${interaction.user} removed ${role} to be gained as a message level reward`
+      ),
+      interaction,
+      server
+    );
 
     return interaction.editReply({
       embeds: [GreenEmbed(`Removed ${role} from the list of roles to gain`)],
@@ -483,20 +424,6 @@ export class Config {
       });
 
     const server = await getServer(interaction.guild.id);
-    // const usersRoles = await userRoles(interaction);
-
-    // if (!usersRoles)
-    //   return interaction.editReply({
-    //     embeds: [RedEmbed('Could not fetch the data. Try again later')],
-    //   });
-
-    // const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    // if (isMod === undefined) {
-    //   return interaction.editReply({
-    //     embeds: [RedEmbed('You are not a mod.')],
-    //   });
-    // }
 
     if (!isMod(interaction, server))
       return interaction.editReply({

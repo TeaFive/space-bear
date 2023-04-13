@@ -3,13 +3,11 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   GuildMember,
-  InteractionResponse,
   Message,
 } from 'discord.js';
 import { Discord, Slash, SlashOption } from 'discordx';
-import { getServer } from '../lib/cacheHelpers.js';
-import userRoles from '../lib/userRoles.js';
-import isMod from '../lib/isMod.js';
+
+import { getServer, userRoles, isMod, modLog } from '../lib/index.js';
 
 @Discord()
 export class Mute {
@@ -77,21 +75,13 @@ export class Mute {
     if (duration === undefined) {
       member.timeout(2.419e9);
 
-      if (server.mod_log_channel) {
-        const channel = await interaction.client.channels.fetch(
-          server.mod_log_channel
-        );
-
-        if (channel)
-          if (channel.isTextBased())
-            channel.send({
-              embeds: [
-                BlueEmbed(
-                  `${interaction.user} muted ${user} for 28d\nReason: ${reason}`
-                ),
-              ],
-            });
-      }
+      modLog(
+        BlueEmbed(
+          `${interaction.user} muted ${user} for 28d\nReason: ${reason}`
+        ),
+        interaction,
+        server
+      );
 
       interaction.client.users.send(user.id, {
         embeds: [
@@ -153,21 +143,13 @@ export class Mute {
 
     member.timeout(parseInt(parts[0]) * multi);
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed(
-                `${interaction.user} muted ${user} for ${duration}\nReason: ${reason}`
-              ),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed(
+        `${interaction.user} muted ${user} for ${duration}\nReason: ${reason}`
+      ),
+      interaction,
+      server
+    );
 
     interaction.client.users.send(user.id, {
       embeds: [
@@ -238,21 +220,11 @@ export class Mute {
 
     member.timeout(null);
 
-    if (server.mod_log_channel) {
-      const channel = await interaction.client.channels.fetch(
-        server.mod_log_channel
-      );
-
-      if (channel)
-        if (channel.isTextBased())
-          channel.send({
-            embeds: [
-              BlueEmbed(
-                `${interaction.user} unmuted ${user}\nReason: ${reason}`
-              ),
-            ],
-          });
-    }
+    modLog(
+      BlueEmbed(`${interaction.user} unmuted ${user}\nReason: ${reason}`),
+      interaction,
+      server
+    );
 
     return interaction.editReply({
       embeds: [GreenEmbed(`<@${user.id}> was unmuted`)],
