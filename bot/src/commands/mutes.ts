@@ -9,12 +9,13 @@ import {
 import { Discord, Slash, SlashOption } from 'discordx';
 import { getServer } from '../lib/cacheHelpers.js';
 import userRoles from '../lib/userRoles.js';
+import isMod from '../lib/isMod.js';
 
 @Discord()
 export class Mute {
   @Slash({
     name: 'mute',
-    description: 'Mute the specified user. Defualt is 28 Days',
+    description: 'Mute the specified user. Default is 28 Days',
   })
   async mute(
     @SlashOption({
@@ -26,7 +27,7 @@ export class Mute {
     user: GuildMember,
     @SlashOption({
       name: 'reason',
-      description: 'reason to mute someone',
+      description: 'Reason for mute',
       required: true,
       type: ApplicationCommandOptionType.String,
     })
@@ -34,7 +35,7 @@ export class Mute {
     @SlashOption({
       name: 'duration',
       description:
-        'Duration you want to mute the user. Ex: 5s, 5m, 5hr, 5d, 5w. Max is 28 Days',
+        'How long you want to mute the user for. Ex: 5s, 5m, 5hr, 5d, 5w. Max is 28 Days',
       required: false,
       type: ApplicationCommandOptionType.String,
     })
@@ -51,16 +52,9 @@ export class Mute {
     const server = await getServer(interaction.guild.id);
     const usersRoles = await userRoles(interaction);
 
-    if (!usersRoles)
+    if (!(await isMod(interaction, server)))
       return interaction.editReply({
-        embeds: [RedEmbed('An error has occured')],
-      });
-
-    const isMod = usersRoles.find((v) => v === server.mod_id);
-
-    if (isMod === undefined)
-      return interaction.editReply({
-        embeds: [RedEmbed('You are not a mod')],
+        embeds: [RedEmbed('You are not a mod.')],
       });
 
     if (
@@ -138,7 +132,7 @@ export class Mute {
       return interaction.editReply({
         embeds: [
           RedEmbed(
-            'Could not determine time.  Make sure your duration follows this format:\n1s\n1m\n1hr\n1d\n1w'
+            'Could not determine time. Make sure your duration follows this format:\n1s\n1m\n1hr\n1d\n1w'
           ),
         ],
       });
@@ -194,7 +188,7 @@ export class Mute {
 
   @Slash({
     name: 'unmute',
-    description: 'Unmute the specified user.',
+    description: 'Unmute the specified user',
   })
   async unmute(
     @SlashOption({
@@ -206,7 +200,7 @@ export class Mute {
     user: GuildMember,
     @SlashOption({
       name: 'reason',
-      description: 'Reason to give',
+      description: 'Reason for unmute',
       required: true,
       type: ApplicationCommandOptionType.String,
     })

@@ -27,7 +27,7 @@ export class Warn {
     user: GuildMember,
     @SlashOption({
       name: 'reason',
-      description: 'Reason to warn the person',
+      description: 'Reason for warn',
       required: true,
       type: ApplicationCommandOptionType.String,
     })
@@ -182,7 +182,7 @@ export class Warn {
   async delwarning(
     @SlashOption({
       name: 'warning-id',
-      description: 'Warning id from a user',
+      description: 'Warning ID from a user',
       required: true,
       type: ApplicationCommandOptionType.String,
     })
