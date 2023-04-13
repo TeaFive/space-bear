@@ -11,7 +11,7 @@ import { Discord, Slash } from 'discordx';
 
 @Discord()
 export class Pat {
-  @Slash({ name: 'leaderboard', description: 'Get the servers leaderboard' })
+  @Slash({ name: 'leaderboard', description: 'Get the server\'s leaderboard' })
   async send(
     interaction: ChatInputCommandInteraction
   ): Promise<InteractionResponse<boolean>> {

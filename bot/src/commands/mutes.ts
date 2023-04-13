@@ -13,7 +13,7 @@ import userRoles from '../lib/userRoles.js';
 export class Mute {
   @Slash({
     name: 'mute',
-    description: 'Mute the specified user. Defualt is 28 Days',
+    description: 'Mute the specified user. Default is 28 Days',
   })
   async mute(
     @SlashOption({
@@ -25,7 +25,7 @@ export class Mute {
     user: GuildMember,
     @SlashOption({
       name: 'reason',
-      description: 'reason to mute someone',
+      description: 'Reason for mute',
       required: true,
       type: ApplicationCommandOptionType.String,
     })
@@ -33,7 +33,7 @@ export class Mute {
     @SlashOption({
       name: 'duration',
       description:
-        'Duration you want to mute the user. Ex: 5s, 5m, 5hr, 5d, 5w. Max is 28 Days',
+        'How long you want to mute the user for. Ex: 5s, 5m, 5hr, 5d, 5w. Max is 28 Days',
       required: false,
       type: ApplicationCommandOptionType.String,
     })
@@ -53,12 +53,12 @@ export class Mute {
 
     if (!server)
       return interaction.reply({
-        embeds: [RedEmbed('An error has occured')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
     if (!usersRoles)
       return interaction.reply({
-        embeds: [RedEmbed('An error has occured')],
+        embeds: [RedEmbed('An error has occurred')],
         ephemeral: true,
       });
 
@@ -150,7 +150,7 @@ export class Mute {
       return interaction.reply({
         embeds: [
           RedEmbed(
-            'Could not determine time.  Make sure your duration follows this format:\n1s\n1m\n1hr\n1d\n1w'
+            'Could not determine time. Make sure your duration follows this format:\n1s\n1m\n1hr\n1d\n1w'
           ),
         ],
         ephemeral: true,
@@ -208,7 +208,7 @@ export class Mute {
 
   @Slash({
     name: 'unmute',
-    description: 'Unmute the specified user.',
+    description: 'Unmute the specified user',
   })
   async unmute(
     @SlashOption({
@@ -220,7 +220,7 @@ export class Mute {
     user: GuildMember,
     @SlashOption({
       name: 'reason',
-      description: 'Reason to give',
+      description: 'Reason for unmute',
       required: true,
       type: ApplicationCommandOptionType.String,
     })
