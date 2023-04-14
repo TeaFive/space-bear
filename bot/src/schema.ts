@@ -6,7 +6,10 @@ export type Json =
   | { [key: string]: Json }
   | Json[];
 
-export type LevelRoles = { role_id: string; level: number };
+type LevelRole = {
+  role_id: string;
+  level: number;
+};
 
 export interface Database {
   graphql_public: {
@@ -74,9 +77,9 @@ export interface Database {
       server: {
         Row: {
           id: number;
-          level_comlumn: string[];
           level_message_channel: string | null;
-          level_ranks: LevelRoles[];
+          level_message_channels: string[];
+          level_ranks: LevelRole[];
           mod_id: string | null;
           mod_log_channel: string | null;
           pat: number;
@@ -84,9 +87,9 @@ export interface Database {
         };
         Insert: {
           id?: number;
-          level_comlumn?: string[];
           level_message_channel?: string | null;
-          level_ranks?: LevelRoles[];
+          level_message_channels?: string[];
+          level_ranks?: LevelRole[];
           mod_id?: string | null;
           mod_log_channel?: string | null;
           pat?: number;
@@ -94,9 +97,9 @@ export interface Database {
         };
         Update: {
           id?: number;
-          level_comlumn?: string[];
           level_message_channel?: string | null;
-          level_ranks?: Json[];
+          level_message_channels?: string[];
+          level_ranks?: LevelRole[];
           mod_id?: string | null;
           mod_log_channel?: string | null;
           pat?: number;

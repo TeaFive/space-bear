@@ -14,48 +14,48 @@ type Member = Database['public']['Tables']['member']['Row'];
 type Server = Database['public']['Tables']['server']['Row'];
 type Warning = Database['public']['Tables']['warning']['Row'];
 
-process.on('uncaughtException', (e) => {
-  console.error(e);
-  const keys = cache.keys();
+// process.on('uncaughtException', (e) => {
+//   console.error(e);
+//   const keys = cache.keys();
 
-  keys.forEach(async (v) => {
-    const table = v.split(':')[0];
+//   keys.forEach(async (v) => {
+//     const table = v.split(':')[0];
 
-    if (table === 'member') {
-      const data = cache.get<Member>(v);
+//     if (table === 'member') {
+//       const data = cache.get<Member>(v);
 
-      if (!data) {
-        console.error(`Could not find ${v} in cache`);
-        process.exit(1);
-      }
+//       if (!data) {
+//         console.error(`Could not find ${v} in cache`);
+//         process.exit(1);
+//       }
 
-      const upsert = await supabase.from(table).upsert(data);
-      console.log(upsert);
+//       const upsert = await supabase.from(table).upsert(data);
+//       console.log(upsert);
 
-      if (upsert.error) {
-        console.error('Upsert error', upsert);
-        process.exit(1);
-      }
-    } else if (table === 'server') {
-      const data = cache.get<Server>(v);
+//       if (upsert.error) {
+//         console.error('Upsert error', upsert);
+//         process.exit(1);
+//       }
+//     } else if (table === 'server') {
+//       const data = cache.get<Server>(v);
 
-      if (!data) {
-        console.error(`Could not find ${v} in cache`);
-        process.exit(1);
-      }
+//       if (!data) {
+//         console.error(`Could not find ${v} in cache`);
+//         process.exit(1);
+//       }
 
-      const upsert = await supabase.from(table).upsert(data);
-      console.log(upsert);
+//       const upsert = await supabase.from(table).upsert(data);
+//       console.log(upsert);
 
-      if (upsert.error) {
-        console.error('Upsert error', upsert);
-        process.exit(1);
-      }
-    }
-  });
+//       if (upsert.error) {
+//         console.error('Upsert error', upsert);
+//         process.exit(1);
+//       }
+//     }
+//   });
 
-  process.exit(1);
-});
+//   process.exit(1);
+// });
 
 config();
 

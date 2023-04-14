@@ -142,12 +142,12 @@ export class Config {
         embeds: [RedEmbed('You are not a mod.')],
       });
 
-    if (server.level_comlumn.find((v) => v === channel.id))
+    if (server.level_message_channels.find((v) => v === channel.id))
       return interaction.editReply({
         embeds: [YellowEmbed('Channel is already added')],
       });
 
-    server.level_comlumn.push(channel.id);
+    server.level_message_channels.push(channel.id);
 
     setServer(interaction.guild.id, server);
 
@@ -193,7 +193,9 @@ export class Config {
         embeds: [RedEmbed('You are not a mod.')],
       });
 
-    server.level_comlumn = server.level_comlumn.filter((v) => v !== channel.id);
+    server.level_message_channels = server.level_message_channels.filter(
+      (v) => v !== channel.id
+    );
 
     setServer(interaction.guild.id, server);
 
@@ -232,12 +234,14 @@ export class Config {
         embeds: [RedEmbed('You are not a mod.')],
       });
 
-    if (server.level_comlumn.length < 1)
+    if (server.level_message_channels.length < 1)
       return interaction.editReply({
         embeds: [RedEmbed('There are no channels')],
       });
 
-    const channels = server.level_comlumn.map((v) => `<#${v}>`).join('\n');
+    const channels = server.level_message_channels
+      .map((v) => `<#${v}>`)
+      .join('\n');
 
     const embed = new EmbedBuilder()
       .setTitle('Channels:')

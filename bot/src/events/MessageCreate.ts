@@ -41,7 +41,8 @@ const Level = async (message: Message): Promise<void> => {
 
   if (!server) return;
 
-  if (!server.level_comlumn.find((v) => v === message.channel.id)) return;
+  if (!server.level_message_channels.find((v) => v === message.channel.id))
+    return;
 
   const XLU = setXpAndLevel(memberData);
 
