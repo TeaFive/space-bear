@@ -5,7 +5,7 @@ import { Discord, Slash } from 'discordx';
 export class DoAFlip {
   @Slash({
     name: 'do-a-flip',
-    description: 'Ask Space Bear to do a flip.',
+    description: 'Ask Space Bear to do a flip',
   })
   DoAFlip(
     interaction: ChatInputCommandInteraction
